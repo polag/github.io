@@ -213,9 +213,14 @@ const sections = {
 ]
 
 };
-
+activeInstance = localStorage.getItem("activeInstance") || "";
 let currentSection = "";
-
+<div class="instance-box">
+  <input id="prepperName" placeholder="Your name">
+  <input id="tripCode" placeholder="Trip code">
+  <button onclick="startInstance()">Create / Open Prep</button>
+</div>
+    
 const grid = document.getElementById("sectionGrid");
 
 for(const section in sections){
@@ -232,7 +237,23 @@ for(const section in sections){
 
     grid.appendChild(card);
 }
+let activeInstance = "";
 
+function startInstance(){
+    const name = document.getElementById("prepperName").value.trim();
+    const trip = document.getElementById("tripCode").value.trim();
+
+    if(!name || !trip){
+        alert("Please enter your name and trip code.");
+        return;
+    }
+
+    activeInstance = "prepday_" + name + "_" + trip;
+
+    localStorage.setItem("activeInstance", activeInstance);
+
+    updateProgress();
+}
 function openSection(section){
 
     currentSection = section;
@@ -243,7 +264,7 @@ function openSection(section){
 
     container.innerHTML = "";
 
-    const saved = JSON.parse(localStorage.getItem(section)) || [];
+    const saved = JSON.parse(localStorage.getItem(activeInstance + "_" + section)) || [];
 
     sections[section].forEach((item,index)=>{
 
@@ -274,10 +295,7 @@ function saveSection(){
     [...document.querySelectorAll("#checklistContainer input:checked")]
     .map(cb => Number(cb.value));
 
-    localStorage.setItem(
-        currentSection,
-        JSON.stringify(checkedBoxes)
-    );
+   localStorage.setItem(activeInstance + "_" + currentSection, JSON.stringify(checkedBoxes));
 
     updateProgress();
 
@@ -291,7 +309,7 @@ function updateProgress(){
     for(const section in sections){
 
         const saved =
-        JSON.parse(localStorage.getItem(section)) || [];
+        JSON.parse(localStorage.getItem(activeInstance + "_" + section)) || [];
 
         if(saved.length === sections[section].length){
 
