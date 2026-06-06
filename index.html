@@ -7,7 +7,6 @@
 <title>Puglia Prep Day Checklist</title>
 
 <style>
-
 body{
     font-family: Arial, sans-serif;
     background:#f5f5f5;
@@ -18,6 +17,35 @@ body{
 h1{
     text-align:center;
     margin-bottom:10px;
+}
+
+.instance-box{
+    max-width:800px;
+    margin:0 auto 25px auto;
+    background:white;
+    padding:20px;
+    border-radius:8px;
+    border:2px solid #333;
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+}
+
+.instance-box input{
+    flex:1;
+    padding:10px;
+    font-size:16px;
+}
+
+.instance-box button{
+    margin-top:0;
+}
+
+.current-instance{
+    max-width:800px;
+    margin:0 auto 20px auto;
+    text-align:center;
+    font-weight:bold;
 }
 
 .progress-container{
@@ -101,17 +129,25 @@ h1{
 }
 
 button{
-    margin-top:20px;
     padding:10px 20px;
     cursor:pointer;
 }
-
 </style>
 </head>
 
 <body>
 
 <h1>Puglia Prep Day Checklist</h1>
+
+<div class="instance-box">
+    <input id="prepperName" placeholder="Your name">
+    <input id="tripCode" placeholder="Trip code">
+    <button onclick="startInstance()">Create / Open Prep</button>
+</div>
+
+<div class="current-instance" id="currentInstanceText">
+    No prep selected yet
+</div>
 
 <div class="progress-container">
     <div class="progress-bar">
@@ -122,122 +158,104 @@ button{
     </div>
 </div>
 
-<div class="grid" id="sectionGrid">
-</div>
+<div class="grid" id="sectionGrid"></div>
 
 <div class="modal" id="modal">
     <div class="modal-content">
         <span class="close" onclick="closeModal()">&times;</span>
-
         <h2 id="sectionTitle"></h2>
-
         <div id="checklistContainer"></div>
-
         <button onclick="saveSection()">Save</button>
     </div>
 </div>
 
 <script>
-
 const sections = {
+    "Confirmations":[
+        "All vendors contacted"
+    ],
 
-"Confirmations":[
-"All vendors contacted"
-],
+    "Documents":[
+        "Equipment list printed",
+        "Guest backgrounder printed",
+        "Shopping list printed",
+        "Van bag documents printed",
+        "Welcome Scrolls ready"
+    ],
 
-"Documents":[
-"Equipment list printed",
-"Guest backgrounder printed",
-"Shopping list printed",
-"Van bag documents printed",
-"Welcome Scrolls ready"
-],
+    "Bikes":[
+        "Labels done",
+        "Bike Fit document checked",
+        "Checked bike inventory to assign spare and leader bikes",
+        "Bikes prepped"
+    ],
 
-"Bikes":[
-"Labels done",
-"Bike Fit document checked",
-"Checked bike inventory to assign spare and leader bikes",
-"Bikes prepped"
-],
+    "Bike Equipment":[
+        "Helmets counted",
+        "Trunk bags counted",
+        "Spare wheels ready",
+        "Locks ready",
+        "Gel seats and triangles inventoried",
+        "Extra pedals ready"
+    ],
 
-"Bike Equipment":[
-"Helmets counted",
-"Trunk bags counted",
-"Spare wheels ready",
-"Locks ready",
-"Gel seats and triangles inventoried",
-"Extra pedals ready"
-],
+    "Batteries":[
+        "E-bike batteries charged",
+        "Performance batteries charged",
+        "E-bike batteries ready"
+    ],
 
-"Batteries":[
-"E-bike batteries charged",
-"Performance batteries charged",
-"E-bike batteries ready"
-],
+    "Vans":[
+        "Gas filled",
+        "Washed",
+        "Clean inside",
+        "Van inspection completed",
+        "AdBlue checked",
+        "Samsara DVIR completed"
+    ],
 
-"Vans":[
-"Gas filled",
-"Washed",
-"Clean inside",
-"Van inspection completed",
-"AdBlue checked",
-"Samsara DVIR completed"
-],
+    "Food Buy":[
+        "Allergies checked",
+        "Inventory WH Food",
+        "Check shopping list for quantities",
+        "ICE!"
+    ],
 
-"Food Buy":[
-"Allergies checked",
-"Inventory WH Food",
-"Check sopping list for quantities",
-"ICE!"
-],
+    "Food Prep":[
+        "GORP ready",
+        "GORP refill ready",
+        "Fruit and bar baskets prepared",
+        "Fruit and bar baskets refill ready",
+        "One bag of salties per van ready",
+        "Water jugs filled"
+    ],
 
-"Food Prep":[
-"GORP ready",
-"GORP refill ready",
-"Fruit and bar baskets prepared",
-"Fruit and bar baskets refill ready",
-"One bag of salties per van ready",
-"Water jugs filled"
-],
+    "Wahoos":[
+        "Routes uploaded",
+        "Wahoos charged",
+        "Wahoos labeled"
+    ],
 
-"Wahoos":[
-"Routes uploaded",
-"Wahoos charged",
-"Wahoos labeled"
-],
-
-"Handoff":[
-"Leaders briefed",
-"Outstanding issues discussed",
-"Warehouse cleaned"
-]
-
+    "Handoff":[
+        "Leaders briefed",
+        "Outstanding issues discussed",
+        "Warehouse cleaned"
+    ]
 };
-activeInstance = localStorage.getItem("activeInstance") || "";
+
+let activeInstance = localStorage.getItem("activeInstance") || "";
 let currentSection = "";
-<div class="instance-box">
-  <input id="prepperName" placeholder="Your name">
-  <input id="tripCode" placeholder="Trip code">
-  <button onclick="startInstance()">Create / Open Prep</button>
-</div>
-    
+
 const grid = document.getElementById("sectionGrid");
 
 for(const section in sections){
-
     const card = document.createElement("div");
-
     card.className = "card";
-
     card.id = "card-" + section;
-
     card.innerHTML = section;
-
     card.onclick = () => openSection(section);
-
     grid.appendChild(card);
 }
-let activeInstance = "";
 
 function startInstance(){
     const name = document.getElementById("prepperName").value.trim();
@@ -249,36 +267,39 @@ function startInstance(){
     }
 
     activeInstance = "prepday_" + name + "_" + trip;
-
     localStorage.setItem("activeInstance", activeInstance);
+
+    document.getElementById("currentInstanceText").innerText =
+        "Current prep: " + name + " / " + trip;
 
     updateProgress();
 }
+
 function openSection(section){
+    if(!activeInstance){
+        alert("Please create or open a prep first.");
+        return;
+    }
 
     currentSection = section;
-
     document.getElementById("sectionTitle").innerText = section;
 
     const container = document.getElementById("checklistContainer");
-
     container.innerHTML = "";
 
-    const saved = JSON.parse(localStorage.getItem(activeInstance + "_" + section)) || [];
+    const saved =
+        JSON.parse(localStorage.getItem(activeInstance + "_" + section)) || [];
 
     sections[section].forEach((item,index)=>{
-
         const checked = saved.includes(index);
 
         container.innerHTML += `
-        <div class="checklist-item">
-            <label>
-            <input type="checkbox"
-                   value="${index}"
-                   ${checked ? "checked" : ""}>
-            ${item}
-            </label>
-        </div>
+            <div class="checklist-item">
+                <label>
+                    <input type="checkbox" value="${index}" ${checked ? "checked" : ""}>
+                    ${item}
+                </label>
+            </div>
         `;
     });
 
@@ -290,59 +311,47 @@ function closeModal(){
 }
 
 function saveSection(){
-
     const checkedBoxes =
-    [...document.querySelectorAll("#checklistContainer input:checked")]
-    .map(cb => Number(cb.value));
+        [...document.querySelectorAll("#checklistContainer input:checked")]
+        .map(cb => Number(cb.value));
 
-   localStorage.setItem(activeInstance + "_" + currentSection, JSON.stringify(checkedBoxes));
+    localStorage.setItem(
+        activeInstance + "_" + currentSection,
+        JSON.stringify(checkedBoxes)
+    );
 
     updateProgress();
-
     closeModal();
 }
 
 function updateProgress(){
-
     let completedSections = 0;
 
     for(const section in sections){
-
         const saved =
-        JSON.parse(localStorage.getItem(activeInstance + "_" + section)) || [];
+            JSON.parse(localStorage.getItem(activeInstance + "_" + section)) || [];
 
         if(saved.length === sections[section].length){
-
             completedSections++;
-
-            document
-            .getElementById("card-" + section)
-            .classList.add("complete");
-
+            document.getElementById("card-" + section).classList.add("complete");
         } else {
-
-            document
-            .getElementById("card-" + section)
-            .classList.remove("complete");
+            document.getElementById("card-" + section).classList.remove("complete");
         }
     }
 
     const percent =
-    Math.round(
-        completedSections /
-        Object.keys(sections).length
-        * 100
-    );
+        Math.round(completedSections / Object.keys(sections).length * 100);
 
-    document.getElementById("progressFill").style.width =
-    percent + "%";
+    document.getElementById("progressFill").style.width = percent + "%";
+    document.getElementById("progressText").innerText = percent + "% Complete";
+}
 
-    document.getElementById("progressText").innerText =
-    percent + "% Complete";
+if(activeInstance){
+    document.getElementById("currentInstanceText").innerText =
+        "Current prep: " + activeInstance.replace("prepday_", "").replace("_", " / ");
 }
 
 updateProgress();
-
 </script>
 
 </body>
