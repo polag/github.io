@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Puglia Prep Day Checklist</title>
+
+<style>
+
+body{
+    font-family: Arial, sans-serif;
+    background:#f5f5f5;
+    margin:0;
+    padding:30px;
+}
+
+h1{
+    text-align:center;
+    margin-bottom:10px;
+}
+
+.progress-container{
+    max-width:800px;
+    margin:0 auto 30px auto;
+}
+
+.progress-bar{
+    width:100%;
+    height:20px;
+    background:#ddd;
+    border-radius:10px;
+    overflow:hidden;
+}
+
+.progress-fill{
+    height:100%;
+    width:0%;
+    background:#4CAF50;
+    transition:0.3s;
+}
+
+.progress-text{
+    text-align:center;
+    margin-top:5px;
+}
+
+.grid{
+    max-width:800px;
+    margin:auto;
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:20px;
+}
+
+.card{
+    background:white;
+    border:2px solid #333;
+    padding:25px;
+    cursor:pointer;
+    border-radius:8px;
+    transition:0.2s;
+}
+
+.card:hover{
+    transform:scale(1.03);
+}
+
+.complete{
+    border-color:green;
+    background:#eefbea;
+}
+
+.modal{
+    display:none;
+    position:fixed;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    background:rgba(0,0,0,0.5);
+}
+
+.modal-content{
+    background:white;
+    width:90%;
+    max-width:600px;
+    margin:50px auto;
+    padding:25px;
+    border-radius:10px;
+}
+
+.close{
+    float:right;
+    cursor:pointer;
+    font-size:24px;
+}
+
+.checklist-item{
+    margin:12px 0;
+}
+
+button{
+    margin-top:20px;
+    padding:10px 20px;
+    cursor:pointer;
+}
+
+</style>
+</head>
+
+<body>
+
+<h1>Puglia Prep Day Checklist</h1>
+
+<div class="progress-container">
+    <div class="progress-bar">
+        <div class="progress-fill" id="progressFill"></div>
+    </div>
+    <div class="progress-text" id="progressText">
+        0% Complete
+    </div>
+</div>
+
+<div class="grid" id="sectionGrid">
+</div>
+
+<div class="modal" id="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeModal()">&times;</span>
+
+        <h2 id="sectionTitle"></h2>
+
+        <div id="checklistContainer"></div>
+
+        <button onclick="saveSection()">Save</button>
+    </div>
+</div>
+
+<script>
+
+const sections = {
+
+"Confirmations":[
+"All vendors contacted",
+"Emails sent",
+"WhatsApp confirmations received",
+"Screenshots shared in prep chat"
+],
+
+"Documents":[
+"Equipment list printed",
+"Guest backgrounder printed",
+"Shopping list printed",
+"Day 1 documents prepared"
+],
+
+"Bikes":[
+"Bikes assigned",
+"Bikes labeled",
+"Spare bikes assigned",
+"Leader bikes assigned"
+],
+
+"Bike Equipment":[
+"Helmets counted",
+"Trunk bags inventoried",
+"Spare wheels ready",
+"Locks ready"
+],
+
+"Batteries":[
+"E-bike batteries charged",
+"Performance batteries charged",
+"Battery inspection completed"
+],
+
+"Vans":[
+"Gas filled",
+"Washed",
+"Vacuumed",
+"Samsara completed"
+],
+
+"Food Buy":[
+"Shopping completed",
+"Ice purchased",
+"Allergies checked"
+],
+
+"Food Prep":[
+"GORP prepared",
+"Fruit baskets prepared",
+"Salties prepared",
+"Water jugs filled"
+],
+
+"Wahoos":[
+"Routes uploaded",
+"Wahoos charged",
+"Wahoos labeled"
+],
+
+"Handoff":[
+"Leaders briefed",
+"Outstanding issues discussed",
+"Warehouse cleaned"
+]
+
+};
+
+let currentSection = "";
+
+const grid = document.getElementById("sectionGrid");
+
+for(const section in sections){
+
+    const card = document.createElement("div");
+
+    card.className = "card";
+
+    card.id = "card-" + section;
+
+    card.innerHTML = section;
+
+    card.onclick = () => openSection(section);
+
+    grid.appendChild(card);
+}
+
+function openSection(section){
+
+    currentSection = section;
+
+    document.getElementById("sectionTitle").innerText = section;
+
+    const container = document.getElementById("checklistContainer");
+
+    container.innerHTML = "";
+
+    const saved = JSON.parse(localStorage.getItem(section)) || [];
+
+    sections[section].forEach((item,index)=>{
+
+        const checked = saved.includes(index);
+
+        container.innerHTML += `
+        <div class="checklist-item">
+            <label>
+            <input type="checkbox"
+                   value="${index}"
+                   ${checked ? "checked" : ""}>
+            ${item}
+            </label>
+        </div>
+        `;
+    });
+
+    document.getElementById("modal").style.display="block";
+}
+
+function closeModal(){
+    document.getElementById("modal").style.display="none";
+}
+
+function saveSection(){
+
+    const checkedBoxes =
+    [...document.querySelectorAll("#checklistContainer input:checked")]
+    .map(cb => Number(cb.value));
+
+    localStorage.setItem(
+        currentSection,
+        JSON.stringify(checkedBoxes)
+    );
+
+    updateProgress();
+
+    closeModal();
+}
+
+function updateProgress(){
+
+    let completedSections = 0;
+
+    for(const section in sections){
+
+        const saved =
+        JSON.parse(localStorage.getItem(section)) || [];
+
+        if(saved.length === sections[section].length){
+
+            completedSections++;
+
+            document
+            .getElementById("card-" + section)
+            .classList.add("complete");
+
+        } else {
+
+            document
+            .getElementById("card-" + section)
+            .classList.remove("complete");
+        }
+    }
+
+    const percent =
+    Math.round(
+        completedSections /
+        Object.keys(sections).length
+        * 100
+    );
+
+    document.getElementById("progressFill").style.width =
+    percent + "%";
+
+    document.getElementById("progressText").innerText =
+    percent + "% Complete";
+}
+
+updateProgress();
+
+</script>
+
+</body>
+</html>
