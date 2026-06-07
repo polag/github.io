@@ -194,13 +194,11 @@ button:hover{
 <body>
 
 <h1>Prep Day Checklist</h1>
-<div class="subtitle">Puglia Ops tiny-but-mighty checklist machine 🚲</div>
 
 <div class="setup-box">
     <div class="setup-grid">
         <input id="prepId" placeholder="Prep ID e.g. BPLI-15JUN">
         <input id="prepperName" placeholder="Your name">
-        <input id="tripCode" placeholder="Trip code e.g. BPLI">
         <input id="guestCount" type="number" placeholder="Number of guests">
     </div>
     <button class="join-btn" onclick="joinPrep()">Create / Join Prep</button>
@@ -587,7 +585,7 @@ window.generateHandoff = function(){
     }
 
     let peopleText = Object.keys(completedBy)
-        .map(name => "- " + name + ": " + completedBy[name] + " tasks")
+        .map(name => "- " + name )
         .join("\n");
 
     const summary =
@@ -596,7 +594,7 @@ window.generateHandoff = function(){
 Guests: ${prepData.guests || "Not set"}
 Prep ID: ${activePrepId}
 
-OUTSTANDING TASKS
+Still To Be Completed
 ${outstanding.length ? outstanding.join("\n") : "All tasks completed. Tiny Ops miracle achieved."}
 
 NOTES
