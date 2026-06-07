@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Firebase Test</title>
+</head>
+<body>
+
+<input id="prepId" placeholder="Prep ID">
+<button id="saveBtn">Save Test</button>
+
+<script type="module">
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-app.js";
+
+import {
+  getFirestore,
+  doc,
+  setDoc,
+  getDoc
+} from "https://www.gstatic.com/firebasejs/12.14.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyAosELL-lbQaXz_fBG8hO7sqFdlLqSel74",
+  authDomain: "puglia-prep-checklist.firebaseapp.com",
+  projectId: "puglia-prep-checklist",
+  storageBucket: "puglia-prep-checklist.firebasestorage.app",
+  messagingSenderId: "965456148245",
+  appId: "1:965456148245:web:db934ecb2878c0ff3a5b1c",
+  measurementId: "G-5HR0VYJLY0"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+document.getElementById("saveBtn").onclick = async () => {
+
+    const prepId =
+      document.getElementById("prepId").value;
+
+    await setDoc(
+      doc(db,"preps",prepId),
+      {
+        test:"hello world",
+        updated:new Date().toISOString()
+      }
+    );
+
+    alert("Saved!");
+};
+
+</script>
+
+</body>
+</html>
