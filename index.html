@@ -3,61 +3,79 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <title>Puglia Prep Day Checklist</title>
 
 <style>
 body{
     font-family: Arial, sans-serif;
-    background:#f5f5f5;
+    background:#f4f4f1;
     margin:0;
-    padding:30px;
+    padding:25px;
+    color:#222;
 }
 
 h1{
     text-align:center;
-    margin-bottom:10px;
+    margin-bottom:5px;
 }
 
-.instance-box{
-    max-width:800px;
+.subtitle{
+    text-align:center;
+    margin-bottom:25px;
+    color:#555;
+}
+
+.setup-box, .summary-box{
+    max-width:850px;
     margin:0 auto 25px auto;
     background:white;
     padding:20px;
-    border-radius:8px;
-    border:2px solid #333;
-    display:flex;
-    gap:10px;
-    flex-wrap:wrap;
+    border:2px solid #222;
+    border-radius:12px;
 }
 
-.instance-box input{
-    flex:1;
+.setup-grid{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:12px;
+}
+
+input, textarea{
+    width:100%;
     padding:10px;
     font-size:16px;
+    box-sizing:border-box;
 }
 
-.instance-box button{
-    margin-top:0;
-}
-
-.current-instance{
-    max-width:800px;
-    margin:0 auto 20px auto;
-    text-align:center;
+button{
+    padding:11px 18px;
+    cursor:pointer;
+    border:2px solid #222;
+    background:#fff;
+    border-radius:8px;
     font-weight:bold;
 }
 
+button:hover{
+    background:#222;
+    color:white;
+}
+
+.join-btn{
+    margin-top:15px;
+    width:100%;
+}
+
 .progress-container{
-    max-width:800px;
-    margin:0 auto 30px auto;
+    max-width:850px;
+    margin:0 auto 25px auto;
 }
 
 .progress-bar{
     width:100%;
-    height:20px;
+    height:22px;
     background:#ddd;
-    border-radius:10px;
+    border-radius:20px;
     overflow:hidden;
 }
 
@@ -70,33 +88,49 @@ h1{
 
 .progress-text{
     text-align:center;
-    margin-top:5px;
+    margin-top:8px;
+    font-weight:bold;
 }
 
 .grid{
-    max-width:800px;
+    max-width:850px;
     margin:auto;
     display:grid;
     grid-template-columns:repeat(2,1fr);
-    gap:20px;
+    gap:18px;
 }
 
 .card{
     background:white;
-    border:2px solid #333;
-    padding:25px;
+    border:2px solid #222;
+    padding:22px;
     cursor:pointer;
-    border-radius:8px;
+    border-radius:12px;
     transition:0.2s;
 }
 
 .card:hover{
-    transform:scale(1.03);
+    transform:scale(1.02);
 }
 
 .complete{
     border-color:green;
     background:#eefbea;
+}
+
+.partial{
+    border-color:#d99a00;
+    background:#fff7e6;
+}
+
+.card-title{
+    font-size:18px;
+    font-weight:bold;
+}
+
+.card-small{
+    margin-top:8px;
+    color:#555;
 }
 
 .modal{
@@ -107,74 +141,134 @@ h1{
     width:100%;
     height:100%;
     background:rgba(0,0,0,0.5);
+    overflow:auto;
 }
 
 .modal-content{
     background:white;
     width:90%;
-    max-width:600px;
-    margin:50px auto;
+    max-width:700px;
+    margin:40px auto;
     padding:25px;
-    border-radius:10px;
+    border-radius:12px;
 }
 
 .close{
     float:right;
     cursor:pointer;
-    font-size:24px;
+    font-size:26px;
 }
 
 .checklist-item{
-    margin:12px 0;
+    margin:14px 0;
+    padding-bottom:10px;
+    border-bottom:1px solid #eee;
 }
 
-button{
-    padding:10px 20px;
-    cursor:pointer;
+.completed-by{
+    font-size:13px;
+    color:#666;
+    margin-left:25px;
+}
+
+.notes-area{
+    margin-top:25px;
+}
+
+.summary-output{
+    white-space:pre-wrap;
+    background:#f8f8f8;
+    border:1px solid #ccc;
+    padding:15px;
+    border-radius:8px;
+}
+
+@media(max-width:700px){
+    .grid, .setup-grid{
+        grid-template-columns:1fr;
+    }
 }
 </style>
 </head>
 
 <body>
 
-<h1>Puglia Prep Day Checklist</h1>
+<h1>Prep Day Checklist</h1>
+<div class="subtitle">Puglia Ops tiny-but-mighty checklist machine 🚲</div>
 
-<div class="instance-box">
-    <input id="prepperName" placeholder="Your name">
-    <input id="tripCode" placeholder="Trip code">
-    <button onclick="startInstance()">Create / Open Prep</button>
+<div class="setup-box">
+    <div class="setup-grid">
+        <input id="prepId" placeholder="Prep ID e.g. BPLI-15JUN">
+        <input id="prepperName" placeholder="Your name">
+        <input id="tripCode" placeholder="Trip code e.g. BPLI">
+        <input id="guestCount" type="number" placeholder="Number of guests">
+    </div>
+    <button class="join-btn" onclick="joinPrep()">Create / Join Prep</button>
 </div>
 
-<div class="current-instance" id="currentInstanceText">
-    No prep selected yet
+<div class="summary-box" id="prepInfo">
+    No prep selected yet.
 </div>
 
 <div class="progress-container">
     <div class="progress-bar">
         <div class="progress-fill" id="progressFill"></div>
     </div>
-    <div class="progress-text" id="progressText">
-        0% Complete
-    </div>
+    <div class="progress-text" id="progressText">0% Complete</div>
 </div>
 
 <div class="grid" id="sectionGrid"></div>
+
+<div class="summary-box">
+    <button onclick="generateHandoff()">Generate Handoff Summary</button>
+    <div class="summary-output" id="handoffSummary" style="display:none;"></div>
+</div>
 
 <div class="modal" id="modal">
     <div class="modal-content">
         <span class="close" onclick="closeModal()">&times;</span>
         <h2 id="sectionTitle"></h2>
         <div id="checklistContainer"></div>
-        <button onclick="saveSection()">Save</button>
+
+        <div class="notes-area">
+            <h3>Notes for handoff</h3>
+            <textarea id="sectionNotes" rows="5" placeholder="Anything the next person needs to know?"></textarea>
+        </div>
+
+        <button onclick="saveSection()">Save Section</button>
     </div>
 </div>
 
-<script>
+<script type="module">
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-app.js";
+
+import {
+    getFirestore,
+    doc,
+    setDoc,
+    getDoc,
+    onSnapshot,
+    updateDoc
+} from "https://www.gstatic.com/firebasejs/12.14.0/firebase-firestore.js";
+
+const firebaseConfig = {
+    apiKey: "AIzaSyAosELL-lbQaXz_fBG8hO7sqFdlLqSel74",
+    authDomain: "puglia-prep-checklist.firebaseapp.com",
+    projectId: "puglia-prep-checklist",
+    storageBucket: "puglia-prep-checklist.firebasestorage.app",
+    messagingSenderId: "965456148245",
+    appId: "1:965456148245:web:db934ecb2878c0ff3a5b1c",
+    measurementId: "G-5HR0VYJLY0"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
 const sections = {
     "Confirmations":[
         "All vendors contacted"
     ],
-
     "Documents":[
         "Equipment list printed",
         "Guest backgrounder printed",
@@ -182,14 +276,12 @@ const sections = {
         "Van bag documents printed",
         "Welcome Scrolls ready"
     ],
-
     "Bikes":[
         "Labels done",
         "Bike Fit document checked",
         "Checked bike inventory to assign spare and leader bikes",
         "Bikes prepped"
     ],
-
     "Bike Equipment":[
         "Helmets counted",
         "Trunk bags counted",
@@ -198,13 +290,11 @@ const sections = {
         "Gel seats and triangles inventoried",
         "Extra pedals ready"
     ],
-
     "Batteries":[
         "E-bike batteries charged",
         "Performance batteries charged",
         "E-bike batteries ready"
     ],
-
     "Vans":[
         "Gas filled",
         "Washed",
@@ -213,14 +303,12 @@ const sections = {
         "AdBlue checked",
         "Samsara DVIR completed"
     ],
-
     "Food Buy":[
         "Allergies checked",
         "Inventory WH Food",
         "Check shopping list for quantities",
         "ICE!"
     ],
-
     "Food Prep":[
         "GORP ready",
         "GORP refill ready",
@@ -229,13 +317,11 @@ const sections = {
         "One bag of salties per van ready",
         "Water jugs filled"
     ],
-
     "Wahoos":[
         "Routes uploaded",
         "Wahoos charged",
         "Wahoos labeled"
     ],
-
     "Handoff":[
         "Leaders briefed",
         "Outstanding issues discussed",
@@ -243,8 +329,11 @@ const sections = {
     ]
 };
 
-let activeInstance = localStorage.getItem("activeInstance") || "";
+let activePrepId = "";
+let currentUser = "";
 let currentSection = "";
+let prepData = {};
+let unsubscribe = null;
 
 const grid = document.getElementById("sectionGrid");
 
@@ -252,46 +341,95 @@ for(const section in sections){
     const card = document.createElement("div");
     card.className = "card";
     card.id = "card-" + section;
-    card.innerHTML = section;
     card.onclick = () => openSection(section);
+    card.innerHTML = `
+        <div class="card-title">${section}</div>
+        <div class="card-small" id="status-${section}">Not started</div>
+    `;
     grid.appendChild(card);
 }
 
-function startInstance(){
-    const name = document.getElementById("prepperName").value.trim();
-    const trip = document.getElementById("tripCode").value.trim();
+window.joinPrep = async function(){
 
-    if(!name || !trip){
-        alert("Please enter your name and trip code.");
+    const prepId = document.getElementById("prepId").value.trim();
+    const name = document.getElementById("prepperName").value.trim();
+    const tripCode = document.getElementById("tripCode").value.trim();
+    const guests = document.getElementById("guestCount").value.trim();
+
+    if(!prepId || !name){
+        alert("Please enter at least Prep ID and your name.");
         return;
     }
 
-    activeInstance = "prepday_" + name + "_" + trip;
-    localStorage.setItem("activeInstance", activeInstance);
+    activePrepId = prepId;
+    currentUser = name;
 
-    document.getElementById("currentInstanceText").innerText =
-        "Current prep: " + name + " / " + trip;
+    const prepRef = doc(db, "preps", activePrepId);
+    const snap = await getDoc(prepRef);
+
+    if(!snap.exists()){
+        await setDoc(prepRef, {
+            prepId: prepId,
+            tripCode: tripCode || "",
+            guests: guests || "",
+            createdBy: name,
+            createdAt: new Date().toISOString(),
+            tasks: {},
+            notes: {},
+            updatedAt: new Date().toISOString()
+        });
+    } else {
+        const existing = snap.data();
+        await updateDoc(prepRef, {
+            tripCode: tripCode || existing.tripCode || "",
+            guests: guests || existing.guests || "",
+            updatedAt: new Date().toISOString()
+        });
+    }
+
+    if(unsubscribe){
+        unsubscribe();
+    }
+
+    unsubscribe = onSnapshot(prepRef, (docSnap) => {
+        prepData = docSnap.data() || {};
+        updateUI();
+    });
+};
+
+function updateUI(){
+
+    document.getElementById("prepInfo").innerHTML = `
+        <strong>Current prep:</strong> ${activePrepId}<br>
+        <strong>Trip:</strong> ${prepData.tripCode || "Not set"}<br>
+        <strong>Guests:</strong> ${prepData.guests || "Not set"}<br>
+        <strong>You are:</strong> ${currentUser}
+    `;
 
     updateProgress();
 }
 
-function openSection(section){
-    if(!activeInstance){
-        alert("Please create or open a prep first.");
+window.openSection = function(section){
+
+    if(!activePrepId){
+        alert("Please create or join a prep first.");
         return;
     }
 
     currentSection = section;
+
     document.getElementById("sectionTitle").innerText = section;
 
     const container = document.getElementById("checklistContainer");
     container.innerHTML = "";
 
-    const saved =
-        JSON.parse(localStorage.getItem(activeInstance + "_" + section)) || [];
+    const tasks = prepData.tasks || {};
 
     sections[section].forEach((item,index)=>{
-        const checked = saved.includes(index);
+
+        const taskKey = section + "__" + index;
+        const task = tasks[taskKey] || {};
+        const checked = task.completed === true;
 
         container.innerHTML += `
             <div class="checklist-item">
@@ -299,59 +437,172 @@ function openSection(section){
                     <input type="checkbox" value="${index}" ${checked ? "checked" : ""}>
                     ${item}
                 </label>
+                <div class="completed-by">
+                    ${checked ? "Completed by " + (task.completedBy || "someone") : ""}
+                </div>
             </div>
         `;
     });
 
-    document.getElementById("modal").style.display="block";
-}
+    const notes = prepData.notes || {};
+    document.getElementById("sectionNotes").value = notes[section] || "";
 
-function closeModal(){
-    document.getElementById("modal").style.display="none";
-}
+    document.getElementById("modal").style.display = "block";
+};
 
-function saveSection(){
+window.closeModal = function(){
+    document.getElementById("modal").style.display = "none";
+};
+
+window.saveSection = async function(){
+
+    const prepRef = doc(db, "preps", activePrepId);
+
     const checkedBoxes =
         [...document.querySelectorAll("#checklistContainer input:checked")]
         .map(cb => Number(cb.value));
 
-    localStorage.setItem(
-        activeInstance + "_" + currentSection,
-        JSON.stringify(checkedBoxes)
-    );
+    const currentTasks = prepData.tasks || {};
+    const updatedTasks = {...currentTasks};
 
-    updateProgress();
+    sections[currentSection].forEach((item,index)=>{
+
+        const taskKey = currentSection + "__" + index;
+
+        if(checkedBoxes.includes(index)){
+            updatedTasks[taskKey] = {
+                section: currentSection,
+                item: item,
+                completed: true,
+                completedBy: currentUser,
+                completedAt: new Date().toISOString()
+            };
+        } else {
+            updatedTasks[taskKey] = {
+                section: currentSection,
+                item: item,
+                completed: false,
+                completedBy: "",
+                completedAt: ""
+            };
+        }
+    });
+
+    const currentNotes = prepData.notes || {};
+    const updatedNotes = {
+        ...currentNotes,
+        [currentSection]: document.getElementById("sectionNotes").value.trim()
+    };
+
+    await updateDoc(prepRef, {
+        tasks: updatedTasks,
+        notes: updatedNotes,
+        updatedAt: new Date().toISOString()
+    });
+
     closeModal();
-}
+};
 
 function updateProgress(){
-    let completedSections = 0;
+
+    let totalTasks = 0;
+    let completedTasks = 0;
+
+    const tasks = prepData.tasks || {};
 
     for(const section in sections){
-        const saved =
-            JSON.parse(localStorage.getItem(activeInstance + "_" + section)) || [];
 
-        if(saved.length === sections[section].length){
-            completedSections++;
-            document.getElementById("card-" + section).classList.add("complete");
+        let sectionTotal = sections[section].length;
+        let sectionDone = 0;
+
+        sections[section].forEach((item,index)=>{
+            totalTasks++;
+            const taskKey = section + "__" + index;
+            if(tasks[taskKey] && tasks[taskKey].completed){
+                completedTasks++;
+                sectionDone++;
+            }
+        });
+
+        const card = document.getElementById("card-" + section);
+        const status = document.getElementById("status-" + section);
+
+        card.classList.remove("complete", "partial");
+
+        if(sectionDone === sectionTotal){
+            card.classList.add("complete");
+            status.innerText = "Complete";
+        } else if(sectionDone > 0){
+            card.classList.add("partial");
+            status.innerText = sectionDone + " / " + sectionTotal + " done";
         } else {
-            document.getElementById("card-" + section).classList.remove("complete");
+            status.innerText = "Not started";
         }
     }
 
-    const percent =
-        Math.round(completedSections / Object.keys(sections).length * 100);
+    const percent = totalTasks === 0 ? 0 : Math.round(completedTasks / totalTasks * 100);
 
     document.getElementById("progressFill").style.width = percent + "%";
     document.getElementById("progressText").innerText = percent + "% Complete";
 }
 
-if(activeInstance){
-    document.getElementById("currentInstanceText").innerText =
-        "Current prep: " + activeInstance.replace("prepday_", "").replace("_", " / ");
-}
+window.generateHandoff = function(){
 
-updateProgress();
+    if(!activePrepId){
+        alert("Please join a prep first.");
+        return;
+    }
+
+    const tasks = prepData.tasks || {};
+    const notes = prepData.notes || {};
+
+    let outstanding = [];
+    let notesText = [];
+    let completedBy = {};
+
+    for(const section in sections){
+
+        sections[section].forEach((item,index)=>{
+            const taskKey = section + "__" + index;
+            const task = tasks[taskKey];
+
+            if(!task || !task.completed){
+                outstanding.push("- " + section + ": " + item);
+            } else {
+                const person = task.completedBy || "Unknown";
+                completedBy[person] = (completedBy[person] || 0) + 1;
+            }
+        });
+
+        if(notes[section]){
+            notesText.push(section + ":\n- " + notes[section]);
+        }
+    }
+
+    let peopleText = Object.keys(completedBy)
+        .map(name => "- " + name + ": " + completedBy[name] + " tasks")
+        .join("\n");
+
+    const summary =
+`HANDOFF SUMMARY — ${prepData.tripCode || activePrepId}
+
+Guests: ${prepData.guests || "Not set"}
+Prep ID: ${activePrepId}
+
+OUTSTANDING TASKS
+${outstanding.length ? outstanding.join("\n") : "All tasks completed. Tiny Ops miracle achieved."}
+
+NOTES
+${notesText.length ? notesText.join("\n\n") : "No notes added."}
+
+COMPLETED BY
+${peopleText || "No completed tasks yet."}`;
+
+    const box = document.getElementById("handoffSummary");
+    box.style.display = "block";
+    box.innerText = summary;
+};
+
 </script>
 
 </body>
